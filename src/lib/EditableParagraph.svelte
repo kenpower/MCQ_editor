@@ -17,11 +17,12 @@
 
 <style>
   p {
-    padding: 10px;
-    font-size: 1.1rem;
+    margin-top: 0;
+    margin-bottom: 0.125em;
+    padding: 0.125em;
+    font-size: 1rem;
     border: 1px solid #ccc;
     border-radius: 4px;
-    min-height: 40px;
     cursor: text;
   }
 

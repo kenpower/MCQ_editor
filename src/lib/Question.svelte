@@ -9,6 +9,8 @@
   function toggleCorrectness(index) {
     mcq = mcq.answers.forEach((answer, i) => {
       answer.isCorrect = i === index;
+      console.log(answer, i, index);
+      console.log(mcq.question);
     });
   }
 
@@ -23,10 +25,9 @@
     <EditableParagraph bind:content={mcq.question} />
   </div>
 
-  <div class="answers">
-    <h3>Answers:</h3>
+  <ol class="answers">
     {#each mcq.answers as answer, index}
-      <div class="answer">
+      <li class="answer">
         <EditableParagraph bind:content={answer.text} />
 
         <label>
@@ -38,26 +39,28 @@
           />
           {answer.isCorrect}
         </label>
-      </div>
+      </li>
     {/each}
-  </div>
+  </ol>
 </div>
 
 <style>
   .mcq-container {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    margin-bottom: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
   }
 
   .question {
-    margin-bottom: 1rem;
+    margin-bottom: 0.125rem;
+    font-weight: bold;
   }
 
   .answers .answer {
     display: flex;
     align-items: center;
-    margin-bottom: 0.5rem;
   }
 
   .custom-radio {
@@ -76,11 +79,24 @@
     border-color: #4caf50; /* Green border when checked */
   }
 
-  input[type="radio"]:checked,
-  .custom-radio::after {
-    content: "\2713"; /* Unicode for checkmark */
+  input[type="radio"]:checked::after {
+    content: "\2713";
     color: white;
-    background-color: #4caf50; /* Green background when checked */
+    background-color: #4caf50;
+    font-size: 14px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  input[type="radio"]:not(:checked),
+  .custom-radio::after {
+    content: "\2718";
+    color: white;
+    background-color: #a2240b;
     font-size: 14px;
     width: 100%;
     height: 100%;
