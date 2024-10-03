@@ -31,23 +31,27 @@
 </script>
 
 <div class="mcq-container">
-  <div class="question">
-    <label for="question">Question:</label>
-    <button on:click={deleteQuestion(index)}>Delete</button>
-    <EditableParagraph bind:content={mcq.question} {handleTextUpdate} />
+  <div class="question-head">
+    <label for="question">Question: {index}</label>
+    <button
+      class="link-btn"
+      id="delete-btn"
+      on:click={() => deleteQuestion(index)}>Delete</button
+    >
   </div>
+  <EditableParagraph bind:content={mcq.question} {handleTextUpdate} />
 
   <ol class="answers">
     {#each mcq.answers as answer, index}
       <li class="answer">
-        <EditableParagraph bind:content={answer.text} {handleTextUpdate} />
-        <label>
+        <label class="distractor">
           <input
             class="custom-radio"
             type="radio"
             checked={answer.isCorrect}
             on:change={() => toggleCorrectness(index)}
           />
+          <EditableParagraph bind:content={answer.text} {handleTextUpdate} />
         </label>
       </li>
     {/each}
@@ -68,9 +72,26 @@
     font-weight: bold;
   }
 
+  .question-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 80%;
+  }
+
   .answers .answer {
     display: flex;
     align-items: center;
+  }
+
+  ol {
+    padding-inline-start: 1em; /* Indent list items by 40px */
+  }
+
+  label.distractor {
+    display: flex;
+    align-items: center; /* Vertically align items */
+    gap: 10px; /* Add space between the radio button and the text */
   }
 
   .custom-radio {
@@ -82,37 +103,40 @@
     margin-right: 10px;
     position: relative;
     transition: border-color 0.2s ease;
+    visibility: hidden;
+    margin: 0px;
   }
 
-  input[type="radio"]:checked,
-  .custom-radio {
-    border-color: #4caf50; /* Green border when checked */
+  input[type="radio"]::after {
+    background-color: transparent;
+    font-size: 1rem;
+
+    visibility: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  input[type="radio"]:hover::after {
+    border: 1px dashed black;
   }
 
   input[type="radio"]:checked::after {
-    content: "\2713";
-    color: white;
-    background-color: #4caf50;
-    font-size: 14px;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
+    content: "\2714";
+    color: #4caf50;
+    font-size: 1.2rem;
+    background-color: transparent;
   }
 
-  input[type="radio"]:not(:checked),
-  .custom-radio::after {
+  input[type="radio"]:not(:checked)::after {
     content: "\2718";
-    color: white;
-    background-color: #a2240b;
-    font-size: 14px;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
+    color: #a2240b;
+  }
+
+  #delete-btn {
+    color: #a2240b;
+    font-size: 80%;
+    cursor: pointer;
   }
 </style>

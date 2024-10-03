@@ -114,7 +114,7 @@
     const a = document.createElement("a");
     a.href = url;
     const dateTime = new Date().toISOString().replace(/[:.]/g, "-");
-    a.download = `mcqs_${dateTime}.tsv`;
+    a.download = `mcqs_${dateTime}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
