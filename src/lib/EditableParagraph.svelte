@@ -1,17 +1,18 @@
 <script>
   export let content = "This is an editable paragraph. Click to edit.";
+  export let handleTextUpdate = () => {};
+
   let contentEditableElement;
+
   // Function to handle the content change
   function updateContent(event) {
     content = event.target.innerText;
+    console.log("editable text update", content);
+    handleTextUpdate();
   }
 </script>
 
-<p
-  contenteditable="true"
-  on:input={updateContent}
-  bind:this={contentEditableElement}
->
+<p contenteditable="true" on:input={updateContent}>
   {content}
 </p>
 
@@ -21,13 +22,14 @@
     margin-bottom: 0.125em;
     padding: 0.125em;
     font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
     cursor: text;
   }
 
-  p:focus {
+  p:focus,
+  p:hover {
     outline: none;
     border-color: #4caf50;
+    border: 1px solid #ccc;
+    border-radius: 4px;
   }
 </style>

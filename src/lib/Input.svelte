@@ -1,9 +1,22 @@
 <script>
+  import { parse } from "svelte/compiler";
   import Question from "./Question.svelte";
 
   // Multiline input from the user
   let rawInput = localStorage.getItem("inputValue") || "";
-  let mcqArray = []; // Parsed MCQ objects
+  let mcqArray = [];
+
+  function loadMcqArray() {
+    const storedData = localStorage.getItem("mcqArray");
+    try {
+      mcqArray = JSON.parse(storedData);
+    } catch (error) {
+      console.error("Error parsing mcqArray from localStorage:", error);
+      mcqArray = []; // If parsing fails, fall back to an empty array
+    }
+  }
+
+  loadMcqArray();
 
   // Function to parse the input into mcq objects
   function parseInput() {
@@ -15,12 +28,16 @@
           return {
             type: parts[0],
             question: parts[1],
-            answers: [
-              { text: parts[2], isCorrect: parts[3] === "correct" },
-              { text: parts[4], isCorrect: parts[5] === "correct" },
-              { text: parts[6], isCorrect: parts[7] === "correct" },
-              { text: parts[8], isCorrect: parts[9] === "correct" },
-            ],
+            answers: parts.slice(2).reduce((acc, val, index, array) => {
+              // We process each pair of elements, i.e., (text, correctness)
+              if (index % 2 === 0) {
+                acc.push({
+                  text: val,
+                  isCorrect: array[index + 1] === "correct",
+                });
+              }
+              return acc;
+            }, []),
           };
         }
         return null; // If the line doesn't follow the expected format, return null
@@ -28,11 +45,79 @@
       .filter((mcq) => mcq !== null); // Filter out null entries for invalid lines
   }
 
+  const shuffle = (array) => {
+    let currentIndex = array.length,
+      randomIndex;
+
+    // While there remain elements to shuffle...
+    while (currentIndex !== 0) {
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
+    }
+
+    return array;
+  };
+
+  const shuffle_answers = (mcqArray) => {
+    mcqArray.forEach((mcq) => (mcq.answers = shuffle(mcq.answers)));
+  };
+
+  const mcqChanged = (mcq, index) => {
+    mcqArray[index] = mcq;
+    saveChanges(mcqArray);
+  };
+
+  const deleteQuestion = (index) => {
+    console.log("deleteQuestion", index);
+    mcqArray.splice(index, 1);
+    saveChanges();
+  };
+
+  function saveChanges() {
+    localStorage.setItem("mcqArray", JSON.stringify(mcqArray)); // Save to localStorage
+    mcqArray = [...mcqArray]; // Trigger reactivity
+  }
+  const process_input = () => {
+    parseInput();
+    shuffle_answers(mcqArray);
+
+    saveChanges();
+  };
   // Function to update localStorage whenever the input value changes
   function handleInput(event) {
     rawInput = event.target.value;
     localStorage.setItem("inputValue", rawInput);
   }
+
+  const save_output_as_tsv = () => {
+    let output = mcqArray
+      .map((mcq) => {
+        const answers = mcq.answers
+          .map(
+            (answer) =>
+              `${answer.text}\t${answer.isCorrect ? "correct" : "incorrect"}`
+          )
+          .join("\t");
+        return `${mcq.type}\t${mcq.question}\t${answers}`;
+      })
+      .join("\n");
+
+    const blob = new Blob([output], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const dateTime = new Date().toISOString().replace(/[:.]/g, "-");
+    a.download = `mcqs_${dateTime}.tsv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 </script>
 
 <div class="mcq-parser">
@@ -44,16 +129,18 @@
     cols="50"
   ></textarea>
 
-  <button on:click={parseInput}>Parse MCQs</button>
+  <button on:click={process_input}>Parse MCQs</button>
 
   {#if mcqArray.length > 0}
     <h3>Parsed MCQs:</h3>
     <ul>
       {#each mcqArray as mcq, index}
-        <Question {mcq} {index} />
+        <Question {mcq} {index} {mcqChanged} {deleteQuestion} />
       {/each}
     </ul>
   {/if}
+
+  <button on:click={save_output_as_tsv}>Save MCQs</button>
 </div>
 
 <style>
@@ -72,6 +159,7 @@
     padding: 5px 15px;
     font-size: 1rem;
     cursor: pointer;
+    background-color: gainsboro;
   }
 
   ul {

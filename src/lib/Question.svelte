@@ -1,35 +1,46 @@
 <script>
   import EditableParagraph from "./EditableParagraph.svelte";
   export let mcq;
+  export let index;
+  export let deleteQuestion = (_) => {};
+  export let mcqChanged = (_, __) => {};
 
-  function updateAnswerText(index, event) {
-    mcq.answers[index].text = event.target.value;
+  function updateMCQ() {
+    mcqChanged(mcq, index);
+
+    mcq = { ...mcq };
   }
 
   function toggleCorrectness(index) {
-    mcq = mcq.answers.forEach((answer, i) => {
+    console.log(mcq);
+    mcq.answers.forEach((answer, i) => {
       answer.isCorrect = i === index;
       console.log(answer, i, index);
       console.log(mcq.question);
     });
+
+    updateMCQ();
   }
 
-  function updateQuestionText(event) {
-    mcq.question = event.target.value;
+  function handleTextUpdate() {
+    console.log("handleTextUpdate", mcq);
+    updateMCQ();
   }
+
+  console.log("rerendering Question", mcq);
 </script>
 
 <div class="mcq-container">
   <div class="question">
     <label for="question">Question:</label>
-    <EditableParagraph bind:content={mcq.question} />
+    <button on:click={deleteQuestion(index)}>Delete</button>
+    <EditableParagraph bind:content={mcq.question} {handleTextUpdate} />
   </div>
 
   <ol class="answers">
     {#each mcq.answers as answer, index}
       <li class="answer">
-        <EditableParagraph bind:content={answer.text} />
-
+        <EditableParagraph bind:content={answer.text} {handleTextUpdate} />
         <label>
           <input
             class="custom-radio"
@@ -37,7 +48,6 @@
             checked={answer.isCorrect}
             on:change={() => toggleCorrectness(index)}
           />
-          {answer.isCorrect}
         </label>
       </li>
     {/each}
