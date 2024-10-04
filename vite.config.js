@@ -8,4 +8,7 @@ export default defineConfig({
   build: {
     outDir: "docs", // so github can serve it as a page
   },
+  server: {
+    open: true, // This will open the app in the browser
+  },
 });

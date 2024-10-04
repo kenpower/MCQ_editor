@@ -11,6 +11,10 @@
     mcq = { ...mcq };
   }
 
+  const deleteDistractor = (index) => {
+    mcq.answers.splice(index, 1);
+    updateMCQ();
+  };
   function toggleCorrectness(index) {
     console.log(mcq);
     mcq.answers.forEach((answer, i) => {
@@ -42,17 +46,22 @@
   <EditableParagraph bind:content={mcq.question} {handleTextUpdate} />
 
   <ol class="answers">
-    {#each mcq.answers as answer, index}
+    {#each mcq.answers as answer, distractor_index}
       <li class="answer">
         <label class="distractor">
           <input
             class="custom-radio"
             type="radio"
             checked={answer.isCorrect}
-            on:change={() => toggleCorrectness(index)}
+            on:change={() => toggleCorrectness(distractor_index)}
           />
           <EditableParagraph bind:content={answer.text} {handleTextUpdate} />
         </label>
+        <button
+          class="link-btn"
+          id="delete-distractor-btn"
+          on:click={() => deleteDistractor(distractor_index)}>Delete</button
+        >
       </li>
     {/each}
   </ol>
@@ -82,6 +91,7 @@
   .answers .answer {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
   }
 
   ol {
@@ -134,9 +144,23 @@
     color: #a2240b;
   }
 
-  #delete-btn {
+  #delete-btn,
+  #delete-distractor-btn {
     color: #a2240b;
     font-size: 80%;
     cursor: pointer;
+    display: none;
+  }
+
+  #delete-distractor-btn {
+    margin-left: auto;
+  }
+
+  li:hover #delete-distractor-btn {
+    display: inline;
+  }
+
+  .mcq-container:hover #delete-btn {
+    display: inline;
   }
 </style>

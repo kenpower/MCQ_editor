@@ -12,7 +12,7 @@
   }
 </script>
 
-<p contenteditable="true" on:input={updateContent}>
+<p contenteditable="true" on:input={updateContent} spellcheck="true">
   {content}
 </p>
 
