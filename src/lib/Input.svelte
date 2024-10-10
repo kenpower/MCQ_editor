@@ -8,23 +8,28 @@
 
   function loadMcqArray() {
     const storedData = localStorage.getItem("mcqArray");
+    console.log("storedData", storedData);
     try {
-      mcqArray = JSON.parse(storedData);
+      mcqArray = JSON.parse(storedData ?? "[]");
     } catch (error) {
       console.error("Error parsing mcqArray from localStorage:", error);
       mcqArray = []; // If parsing fails, fall back to an empty array
     }
+
+    console.log("mcqArray", mcqArray);
   }
 
   loadMcqArray();
 
   // Function to parse the input into mcq objects
-  function parseInput() {
-    mcqArray = rawInput
+  function parseInput(mcqRawInput) {
+    let linesWithErrors = [];
+    let parsedQuestions = mcqRawInput
       .split("\n")
       .map((line) => {
+        console.log("line", line);
         const parts = line.split("\t");
-        if (parts.length >= 10) {
+        if (parts.length >= 4 && (parts.length - 2) % 2 === 0) {
           return {
             type: parts[0],
             question: parts[1],
@@ -36,13 +41,17 @@
                   isCorrect: array[index + 1] === "correct",
                 });
               }
+
               return acc;
             }, []),
           };
         }
+        linesWithErrors.push(line);
         return null; // If the line doesn't follow the expected format, return null
       })
       .filter((mcq) => mcq !== null); // Filter out null entries for invalid lines
+
+    return { parsedQuestions, linesWithErrors };
   }
 
   const shuffle = (array) => {
@@ -65,13 +74,14 @@
     return array;
   };
 
-  const shuffle_answers = (mcqArray) => {
-    mcqArray.forEach((mcq) => (mcq.answers = shuffle(mcq.answers)));
+  const shuffle_answers = (mcqs) => {
+    mcqs.forEach((mcq) => (mcq.answers = shuffle(mcq.answers)));
+    return mcqs;
   };
 
   const mcqChanged = (mcq, index) => {
     mcqArray[index] = mcq;
-    saveChanges(mcqArray);
+    saveChanges();
   };
 
   const deleteQuestion = (index) => {
@@ -85,14 +95,35 @@
     mcqArray = [...mcqArray]; // Trigger reactivity
   }
   const process_input = () => {
-    parseInput();
-    shuffle_answers(mcqArray);
-
+    const { parsedQuestions, linesWithErrors } = parseInput(
+      unShowWhiteSpace(rawInput)
+    );
+    console.log("parsed", parsedQuestions);
+    console.log("linesWithError", linesWithErrors);
+    console.log("mcqArray", mcqArray);
+    mcqArray = [...mcqArray, ...shuffle_answers(parsedQuestions)];
+    rawInput = showWhiteSpace(linesWithErrors.join("\n"));
     saveChanges();
   };
+
+  const showWhiteSpace = (text) => {
+    return text
+      .replace(/\t/g, "→") // Replace tabs with arrows
+      .replace(/ /g, "·"); // Replace spaces with dots
+  };
+
+  const unShowWhiteSpace = (text) => {
+    return text
+      .replace(/→/g, "\t") // Replace arrows with tabs
+      .replace(/·/g, " "); // Replace dots with spaces
+  };
+
   // Function to update localStorage whenever the input value changes
   function handleInput(event) {
-    rawInput = event.target.value;
+    let content = showWhiteSpace(event.target.value);
+    // Update textarea content
+    event.target.value = content;
+    rawInput = content;
     localStorage.setItem("inputValue", rawInput);
   }
 

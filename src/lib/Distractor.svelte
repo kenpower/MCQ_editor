@@ -30,7 +30,7 @@
   label.distractor {
     display: flex;
     align-items: center; /* Vertically align items */
-    gap: 10px; /* Add space between the radio button and the text */
+    gap: 10px; /* Add space between the radio button and the text*/
   }
 
   .custom-radio {

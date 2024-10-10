@@ -1,6 +1,6 @@
 <script>
   export let content = "This is an editable paragraph. Click to edit.";
-  export let handleTextUpdate = () => {};
+  export let textUpdate = () => {};
 
   let contentEditableElement;
 
@@ -8,7 +8,7 @@
   function updateContent(event) {
     content = event.target.innerText;
     console.log("editable text update", content);
-    handleTextUpdate();
+    textUpdate();
   }
 </script>
 
