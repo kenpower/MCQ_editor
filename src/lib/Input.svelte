@@ -149,6 +149,11 @@
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  const deleteAll = () => {
+    mcqArray = [];
+    saveChanges();
+  };
 </script>
 
 <div class="mcq-parser">
@@ -160,7 +165,9 @@
     cols="50"
   ></textarea>
 
-  <button on:click={process_input}>Parse MCQs</button>
+  {#if rawInput.length > 0}
+    <button on:click={process_input}>Parse MCQs</button>
+  {/if}
 
   {#if mcqArray.length > 0}
     <h3>Parsed MCQs:</h3>
@@ -169,9 +176,12 @@
         <Question {mcq} {index} {mcqChanged} {deleteQuestion} />
       {/each}
     </ul>
-  {/if}
+    <div><button on:click={save_output_as_tsv}>Save MCQs</button></div>
 
-  <button on:click={save_output_as_tsv}>Save MCQs</button>
+    <hr />
+
+    <button class="link-btn delete-btn" on:click={deleteAll}>Delete All</button>
+  {/if}
 </div>
 
 <style>
@@ -183,14 +193,6 @@
     width: 100%;
     font-family: inherit;
     padding: 10px;
-  }
-
-  button {
-    margin-top: 10px;
-    padding: 5px 15px;
-    font-size: 1rem;
-    cursor: pointer;
-    background-color: gainsboro;
   }
 
   ul {

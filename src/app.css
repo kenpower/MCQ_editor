@@ -52,7 +52,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: gainsboro;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -72,19 +72,27 @@ button:focus-visible {
   a:hover {
     color: #747bff;
   }
-  button {
+  /* button {
     background-color: #f9f9f9;
-  }
+  } */
 }
 
 .link-btn {
   background: none;
+  background-color: transparent;
   border: none;
   color: blue;
   text-decoration: underline;
   cursor: pointer;
   padding: 0;
   font: inherit; /* Inherit the font to match surrounding text */
+}
+
+.delete-btn {
+  color: #a2240b;
+  font-size: 80%;
+  cursor: pointer;
+  font: 80%; /* Inherit the font to match surrounding text */
 }
 
 /* Optional: Hover state to mimic link behavior */
