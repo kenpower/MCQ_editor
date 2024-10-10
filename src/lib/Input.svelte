@@ -158,8 +158,9 @@
     saveChanges();
   };
 
-  let inputBoxContent =
-    showWhiteSpace(localStorage.getItem("inputValue")) || "";
+  let inputBoxContent = showWhiteSpace(
+    localStorage.getItem("inputValue") || ""
+  );
 
   let mcqArray = loadMcqArray();
 </script>
