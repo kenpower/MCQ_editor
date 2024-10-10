@@ -2,24 +2,19 @@
   import { parse } from "svelte/compiler";
   import Question from "./Question.svelte";
 
-  // Multiline input from the user
-  let rawInput = localStorage.getItem("inputValue") || "";
-  let mcqArray = [];
-
   function loadMcqArray() {
     const storedData = localStorage.getItem("mcqArray");
     console.log("storedData", storedData);
+    let mcqFromStorage = [];
     try {
-      mcqArray = JSON.parse(storedData ?? "[]");
+      mcqFromStorage = JSON.parse(storedData ?? "[]");
     } catch (error) {
       console.error("Error parsing mcqArray from localStorage:", error);
-      mcqArray = []; // If parsing fails, fall back to an empty array
     }
 
-    console.log("mcqArray", mcqArray);
+    console.log("mcqFromStorage", mcqFromStorage);
+    return mcqFromStorage;
   }
-
-  loadMcqArray();
 
   // Function to parse the input into mcq objects
   function parseInput(mcqRawInput) {
@@ -96,13 +91,13 @@
   }
   const process_input = () => {
     const { parsedQuestions, linesWithErrors } = parseInput(
-      unShowWhiteSpace(rawInput)
+      unShowWhiteSpace(inputBoxContent)
     );
     console.log("parsed", parsedQuestions);
     console.log("linesWithError", linesWithErrors);
     console.log("mcqArray", mcqArray);
     mcqArray = [...mcqArray, ...shuffle_answers(parsedQuestions)];
-    rawInput = showWhiteSpace(linesWithErrors.join("\n"));
+    inputBoxContent = showWhiteSpace(linesWithErrors.join("\n"));
     saveChanges();
   };
 
@@ -120,11 +115,19 @@
 
   // Function to update localStorage whenever the input value changes
   function handleInput(event) {
-    let content = showWhiteSpace(event.target.value);
-    // Update textarea content
-    event.target.value = content;
-    rawInput = content;
-    localStorage.setItem("inputValue", rawInput);
+    const textarea = event.target;
+    let rawContent = unShowWhiteSpace(textarea.value);
+    const cursorPosition = textarea.selectionStart;
+    const beforeCursorContent = rawContent.slice(0, cursorPosition);
+    const matchesBeforeCursor = (beforeCursorContent.match(/ {4}/g) || [])
+      .length;
+    rawContent = rawContent.replace(/ {4}/g, "\t"); // 4 space = tab
+
+    textarea.value = showWhiteSpace(rawContent);
+    localStorage.setItem("inputValue", rawContent);
+
+    textarea.selectionStart = textarea.selectionEnd =
+      cursorPosition - matchesBeforeCursor * 3;
   }
 
   const save_output_as_tsv = () => {
@@ -154,18 +157,23 @@
     mcqArray = [];
     saveChanges();
   };
+
+  let inputBoxContent =
+    showWhiteSpace(localStorage.getItem("inputValue")) || "";
+
+  let mcqArray = loadMcqArray();
 </script>
 
 <div class="mcq-parser">
   <textarea
-    bind:value={rawInput}
+    bind:value={inputBoxContent}
     on:input={handleInput}
     placeholder="Paste MCQ lines here (TSV format)"
     rows="10"
     cols="50"
   ></textarea>
 
-  {#if rawInput.length > 0}
+  {#if inputBoxContent.length > 0}
     <button on:click={process_input}>Parse MCQs</button>
   {/if}
 
