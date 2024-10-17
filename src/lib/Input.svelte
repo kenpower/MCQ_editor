@@ -33,7 +33,10 @@
               if (index % 2 === 0) {
                 acc.push({
                   text: val,
-                  isCorrect: array[index + 1] === "correct",
+                  // check if begins with "correct..." ignore case
+                  isCorrect: array[index + 1]
+                    .toLowerCase()
+                    .startsWith("correct"),
                 });
               }
 
