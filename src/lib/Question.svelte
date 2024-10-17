@@ -95,12 +95,16 @@
 
   #delete-btn {
     color: #a2240b;
-    font-size: 80%;
-    cursor: pointer;
-    display: none;
   }
 
-  .mcq-container:hover #delete-btn {
-    display: inline;
+  .link-btn {
+    font-size: 80%;
+    cursor: pointer;
+    visibility: hidden;
+  }
+
+  .mcq-container:hover #delete-btn,
+  .mcq-container:hover #add-btn {
+    visibility: visible;
   }
 </style>

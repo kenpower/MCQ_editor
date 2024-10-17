@@ -24,6 +24,9 @@
     font-size: 1rem;
     cursor: text;
     min-width: 50%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    border-color: transparent;
   }
 
   p:focus,
