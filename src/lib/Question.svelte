@@ -1,4 +1,5 @@
 <script>
+  import { onMount } from "svelte";
   import EditableParagraph from "./EditableParagraph.svelte";
   import Distractor from "./Distractor.svelte";
   export let mcq;
@@ -32,6 +33,17 @@
     updateMCQ();
   }
 
+  const newItemRef = null;
+  const addDistractor = () => {
+    mcq.answers.push({ text: "", isCorrect: false });
+    onMount(() => {
+      if (newItemRef) {
+        newItemRef.focus();
+      }
+    });
+    updateMCQ();
+  };
+
   console.log("rerendering Question", mcq);
 </script>
 
@@ -55,6 +67,9 @@
         {textUpdate}
       />
     {/each}
+    <button class="link-btn" id="add-btn" on:click={() => addDistractor()}
+      >Add New Distractor</button
+    >
   </ol>
 </div>
 

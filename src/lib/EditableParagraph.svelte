@@ -23,6 +23,7 @@
     padding: 0.125em;
     font-size: 1rem;
     cursor: text;
+    min-width: 50%;
   }
 
   p:focus,
