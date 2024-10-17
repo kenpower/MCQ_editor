@@ -14,8 +14,8 @@
       checked={answer.isCorrect}
       on:change={toggleCorrectness}
     />
-    <EditableParagraph bind:content={answer.text} {textUpdate} />
   </label>
+  <EditableParagraph bind:content={answer.text} {textUpdate} />
   <button class="link-btn" id="delete-distractor-btn" on:click={deleteMe}
     >Delete</button
   >
