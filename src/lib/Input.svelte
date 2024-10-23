@@ -16,6 +16,13 @@
     return mcqFromStorage;
   }
 
+  const clean = (text) => {
+    //remove MC→TEXT→
+    text = text.replace(/MC\tTEXT\t/g, "MC\t");
+
+    return text;
+  };
+
   // Function to parse the input into mcq objects
   function parseInput(mcqRawInput) {
     let linesWithErrors = [];
@@ -23,6 +30,7 @@
       .split("\n")
       .map((line) => {
         console.log("line", line);
+        line = clean(line);
         const parts = line.split("\t");
         if (parts.length >= 4 && (parts.length - 2) % 2 === 0) {
           return {

@@ -5,9 +5,7 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 export default defineConfig({
   plugins: [svelte()],
   base: "./", // Ensures relative paths for assets
-  build: {
-    outDir: "docs", // so github can serve it as a page
-  },
+
   server: {
     open: true, // This will open the app in the browser
   },
