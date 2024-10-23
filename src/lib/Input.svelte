@@ -20,6 +20,9 @@
     //remove MC→TEXT→
     text = text.replace(/MC\tTEXT\t/g, "MC\t");
 
+    //remove answer numbering/lettering
+    text = text.replace(/\t[a-zA-Z]:/g, "\t");
+
     return text;
   };
 
