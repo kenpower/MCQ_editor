@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { tick } from "svelte";
   import EditableParagraph from "./EditableParagraph.svelte";
   import Distractor from "./Distractor.svelte";
   export let mcq;
@@ -33,15 +33,16 @@
     updateMCQ();
   }
 
-  const newItemRef = null;
-  const addDistractor = () => {
+  let focusIndex = null;
+  const addDistractor = async () => {
     mcq.answers.push({ text: "", isCorrect: false });
-    onMount(() => {
-      if (newItemRef) {
-        newItemRef.focus();
-      }
-    });
+    // mark which index should be autofocused when rendered
+    focusIndex = mcq.answers.length - 1;
     updateMCQ();
+    // wait for DOM to update so child can perform focus
+    await tick();
+    // clear focusIndex after a short delay to avoid keeping it set
+    focusIndex = null;
   };
 
   console.log("rerendering Question", mcq);

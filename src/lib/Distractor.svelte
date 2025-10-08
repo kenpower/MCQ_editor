@@ -4,6 +4,7 @@
   export let toggleCorrectness = (_) => {};
   export let deleteMe = (_) => {};
   export let textUpdate = () => {};
+  export let autofocus = false;
 </script>
 
 <li class="answer">
@@ -15,7 +16,7 @@
       on:change={toggleCorrectness}
     />
   </label>
-  <EditableParagraph bind:content={answer.text} {textUpdate} />
+  <EditableParagraph bind:content={answer.text} {textUpdate} {autofocus} />
   <button class="link-btn" id="delete-distractor-btn" on:click={deleteMe}
     >Delete</button
   >

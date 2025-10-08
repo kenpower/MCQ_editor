@@ -1,6 +1,9 @@
 <script>
+  import { onMount } from "svelte";
+
   export let content = "This is an editable paragraph. Click to edit.";
   export let textUpdate = () => {};
+  export let autofocus = false;
 
   let contentEditableElement;
 
@@ -10,9 +13,32 @@
     console.log("editable text update", content);
     textUpdate();
   }
+
+  onMount(() => {
+    if (
+      autofocus &&
+      contentEditableElement &&
+      typeof contentEditableElement.focus === "function"
+    ) {
+      contentEditableElement.focus();
+    }
+  });
+
+  $: if (
+    autofocus &&
+    contentEditableElement &&
+    typeof contentEditableElement.focus === "function"
+  ) {
+    contentEditableElement.focus();
+  }
 </script>
 
-<p contenteditable="true" on:input={updateContent} spellcheck="true">
+<p
+  bind:this={contentEditableElement}
+  contenteditable="true"
+  on:input={updateContent}
+  spellcheck="true"
+>
   {content}
 </p>
 
