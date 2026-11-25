@@ -159,14 +159,21 @@
       cursorPosition - matchesBeforeCursor * 3;
   }
 
+  // Blackboard shows answer text literally, so tags and entities must be plain text
+  const toPlainText = (text) => {
+    const el = document.createElement("textarea");
+    el.innerHTML = text.replace(/<br\s*\/?>/gi, " ").replace(/<\/?[a-z][^>]*>/gi, "");
+    return el.value;
+  };
+
   const save_output_as_tsv = () => {
     let output = mcqArray
       .map((mcq) => {
         const answers = mcq.answers
           .map((answer) =>
             mcq.type === "ORD"
-              ? answer.text
-              : `${answer.text}\t${answer.isCorrect ? "correct" : "incorrect"}`
+              ? toPlainText(answer.text)
+              : `${toPlainText(answer.text)}\t${answer.isCorrect ? "correct" : "incorrect"}`
           )
           .join("\t");
         return `${mcq.type}\t${mcq.question}\t${answers}`;
