@@ -11,7 +11,8 @@
   // escape everything, then re-allow a small set of formatting tags
   const toSafeHtml = (text) =>
     (text ?? "")
-      .replace(/&/g, "&amp;")
+      // keep existing entities such as &gt; and &#39; intact
+      .replace(/&(?!(?:#\d+|#x[0-9a-f]+|[a-z][a-z0-9]*);)/gi, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(
