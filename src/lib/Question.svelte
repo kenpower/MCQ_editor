@@ -19,12 +19,21 @@
   };
   function toggleCorrectness(index) {
     console.log(mcq);
-    mcq.answers.forEach((answer, i) => {
-      answer.isCorrect = i === index;
-      console.log(answer, i, index);
-      console.log(mcq.question);
-    });
+    if (mcq.type === "MA") {
+      mcq.answers[index].isCorrect = !mcq.answers[index].isCorrect;
+    } else {
+      mcq.answers.forEach((answer, i) => {
+        answer.isCorrect = i === index;
+      });
+    }
 
+    updateMCQ();
+  }
+
+  function moveAnswer(from, to) {
+    if (to < 0 || to >= mcq.answers.length) return;
+    const [moved] = mcq.answers.splice(from, 1);
+    mcq.answers.splice(to, 0, moved);
     updateMCQ();
   }
 
@@ -35,7 +44,9 @@
 
   let focusIndex = null;
   const addDistractor = async () => {
-    mcq.answers.push({ text: "", isCorrect: false });
+    mcq.answers.push(
+      mcq.type === "ORD" ? { text: "" } : { text: "", isCorrect: false }
+    );
     // mark which index should be autofocused when rendered
     focusIndex = mcq.answers.length - 1;
     updateMCQ();
@@ -50,7 +61,7 @@
 
 <div class="mcq-container">
   <div class="question-head">
-    <label for="question">Question: {index}</label>
+    <label for="question">Question: {index} ({mcq.type})</label>
     <button
       class="link-btn"
       id="delete-btn"
@@ -63,6 +74,11 @@
     {#each mcq.answers as answer, distractor_index}
       <Distractor
         {answer}
+        type={mcq.type}
+        position={distractor_index}
+        last={distractor_index === mcq.answers.length - 1}
+        moveUp={() => moveAnswer(distractor_index, distractor_index - 1)}
+        moveDown={() => moveAnswer(distractor_index, distractor_index + 1)}
         toggleCorrectness={() => toggleCorrectness(distractor_index)}
         deleteMe={() => deleteDistractor(distractor_index)}
         {textUpdate}

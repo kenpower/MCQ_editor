@@ -6,60 +6,74 @@
   export let autofocus = false;
 
   let contentEditableElement;
+  let editing = false;
 
-  // Function to handle the content change
+  // escape everything, then re-allow a small set of formatting tags
+  const toSafeHtml = (text) =>
+    (text ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(
+        /&lt;(\/?)(code|pre|b|i|em|strong|u|sub|sup)&gt;/gi,
+        "<$1$2>"
+      )
+      .replace(/&lt;br\s*\/?&gt;/gi, "<br>");
+
   function updateContent(event) {
-    content = event.target.innerText;
-    console.log("editable text update", content);
+    content = event.target.textContent;
     textUpdate();
   }
 
-  onMount(() => {
-    if (
-      autofocus &&
-      contentEditableElement &&
-      typeof contentEditableElement.focus === "function"
-    ) {
-      contentEditableElement.focus();
-    }
-  });
-
-  $: if (
-    autofocus &&
-    contentEditableElement &&
-    typeof contentEditableElement.focus === "function"
-  ) {
-    contentEditableElement.focus();
+  function startEditing() {
+    editing = true;
+    contentEditableElement.textContent = content;
   }
+
+  function stopEditing() {
+    editing = false;
+  }
+
+  function focusIfRequested() {
+    if (autofocus && contentEditableElement) contentEditableElement.focus();
+  }
+
+  onMount(focusIfRequested);
+
+  $: if (contentEditableElement && !editing) {
+    contentEditableElement.innerHTML = toSafeHtml(content);
+  }
+
+  $: if (autofocus) focusIfRequested();
 </script>
 
 <p
   bind:this={contentEditableElement}
   contenteditable="true"
+  on:focus={startEditing}
+  on:blur={stopEditing}
   on:input={updateContent}
   spellcheck="true"
->
-  {content}
-</p>
+></p>
 
 <style>
-  p {
-    margin-top: 0;
-    margin-bottom: 0.125em;
-    padding: 0.125em;
-    font-size: 1rem;
-    cursor: text;
-    min-width: 50%;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    border-color: transparent;
+
+  p :global(pre) {
+    background: #f4f4f4;
+    padding: 0.5em;
+    margin: 0.25em 0;
+    overflow-x: auto;
+    white-space: pre;
   }
 
-  p:focus,
-  p:hover {
-    outline: none;
-    border-color: #4caf50;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  p :global(code) {
+    font-family: monospace;
+    background: #f4f4f4;
+    padding: 0 0.2em;
+  }
+
+  p :global(pre code) {
+    background: none;
+    padding: 0;
   }
 </style>

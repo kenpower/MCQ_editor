@@ -35,9 +35,22 @@
         console.log("line", line);
         line = clean(line);
         const parts = line.split("\t");
-        if (parts.length >= 4 && (parts.length - 2) % 2 === 0) {
+        const type = (parts[0] ?? "").trim().toUpperCase();
+        if (type === "ORD" && parts.length >= 4) {
+          // ordered answers: the listed order is the correct order
           return {
-            type: parts[0],
+            type,
+            question: parts[1],
+            answers: parts.slice(2).map((text) => ({ text })),
+          };
+        }
+        if (
+          (type === "MC" || type === "MA") &&
+          parts.length >= 4 &&
+          (parts.length - 2) % 2 === 0
+        ) {
+          return {
+            type,
             question: parts[1],
             answers: parts.slice(2).reduce((acc, val, index, array) => {
               // We process each pair of elements, i.e., (text, correctness)
@@ -84,7 +97,9 @@
   };
 
   const shuffle_answers = (mcqs) => {
-    mcqs.forEach((mcq) => (mcq.answers = shuffle(mcq.answers)));
+    mcqs.forEach((mcq) => {
+      if (mcq.type !== "ORD") mcq.answers = shuffle(mcq.answers);
+    });
     return mcqs;
   };
 
@@ -148,9 +163,10 @@
     let output = mcqArray
       .map((mcq) => {
         const answers = mcq.answers
-          .map(
-            (answer) =>
-              `${answer.text}\t${answer.isCorrect ? "correct" : "incorrect"}`
+          .map((answer) =>
+            mcq.type === "ORD"
+              ? answer.text
+              : `${answer.text}\t${answer.isCorrect ? "correct" : "incorrect"}`
           )
           .join("\t");
         return `${mcq.type}\t${mcq.question}\t${answers}`;
